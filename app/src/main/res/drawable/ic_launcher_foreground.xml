@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 一个简约风格的 'A' 字母 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,25L25,83L33,83L40,68L68,68L75,83L83,83L54,25ZM43,62L54,38L65,62L43,62Z" />
+
+    <!-- 一个代表天气的小圆圈（像太阳或气团） -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M78,35c0,4.4 -3.6,8 -8,8s-8,-3.6 -8,-8s3.6,-8 8,-8s8,3.6 8,8z" />
+</vector>
