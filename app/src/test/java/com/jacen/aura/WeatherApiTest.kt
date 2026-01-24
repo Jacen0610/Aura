@@ -13,7 +13,7 @@ class WeatherApiTest {
     @Test
     fun testWeatherForecastApi() = runBlocking {
         // 测试时请手动填入你的 WeatherAPI Key
-        val apiKey = "YOUR_WEATHER_API_KEY_HERE" 
+        val apiKey = "c94aeffa7f924478a5690952262301"
         val location = "Nanjing" // 测试城市
 
         val json = Json { 

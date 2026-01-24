@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -128,6 +129,7 @@ fun WeatherHomeScreen(
     var localWeatherData by remember { mutableStateOf(initialWeatherData) }
     var localCityName by remember { mutableStateOf(initialCityName) }
     var suggestions by remember { mutableStateOf<List<SearchSuggestion>>(emptyList()) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(searchQuery) {
         if (searchQuery.length >= 2) {
@@ -135,7 +137,7 @@ fun WeatherHomeScreen(
             try {
                 suggestions = WeatherClient.api.searchCities(WeatherClient.API_KEY, searchQuery)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("Weather", "Search failed", e)
             }
         } else {
             suggestions = emptyList()
@@ -145,12 +147,14 @@ fun WeatherHomeScreen(
     fun updateWeather(query: String) {
         scope.launch {
             try {
+                errorMsg = null
                 val response = WeatherClient.api.getWeatherForecast(WeatherClient.API_KEY, query)
                 localWeatherData = response
                 localCityName = response.location.name
                 onWeatherDataUpdated(response, response.location.name)
             } catch (e: Exception) {
-                e.printStackTrace()
+                errorMsg = "天气数据获取失败，请检查网络"
+                Log.e("Weather", "Update failed", e)
             }
         }
     }
@@ -160,7 +164,8 @@ fun WeatherHomeScreen(
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
             getCurrentLocation(fusedLocationClient) { lat, lon ->
-                updateWeather("$lat,$lon")
+                if (lat != null && lon != null) updateWeather("$lat,$lon")
+                else localCityName = "定位失败，请手动搜索"
             }
         }
     }
@@ -169,7 +174,8 @@ fun WeatherHomeScreen(
         if (localWeatherData == null) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 getCurrentLocation(fusedLocationClient) { lat, lon ->
-                    updateWeather("$lat,$lon")
+                    if (lat != null && lon != null) updateWeather("$lat,$lon")
+                    else localCityName = "定位失败，请点击搜索框输入城市"
                 }
             } else {
                 permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
@@ -209,7 +215,12 @@ fun WeatherHomeScreen(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        if (localWeatherData != null) {
+        
+        if (errorMsg != null) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(errorMsg!!, color = MaterialTheme.colorScheme.error)
+            }
+        } else if (localWeatherData != null) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 MainWeatherCard(localCityName, localWeatherData!!)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -222,8 +233,10 @@ fun WeatherHomeScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator()
+                Spacer(Modifier.height(8.dp))
+                Text(text = localCityName, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -234,6 +247,8 @@ fun AIAdviceScreen(weatherData: WeatherResponse?, cityName: String) {
     var advice by remember { mutableStateOf("正在为您生成穿衣建议...") }
     var isGenerating by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    // 使用测试通过的 Repository
+    val repository = remember { GeminiRepositoryImpl() }
 
     LaunchedEffect(weatherData) {
         if (weatherData != null && !isGenerating) {
@@ -242,33 +257,23 @@ fun AIAdviceScreen(weatherData: WeatherResponse?, cityName: String) {
                 try {
                     val current = weatherData.current
                     val prompt = """
-                        你是一个专业的穿衣助手。请根据以下天气数据提供详细的穿衣建议。
+                        你是一个专业的穿衣助手。请根据以下天气数据为提供详细的穿衣建议。
+                        城市: $cityName
                         当前温度: ${current.temp_c}°C
                         体感温度: ${current.feelslike_c}°C
                         天气状况: ${current.condition.text}
                         湿度: ${current.humidity}%
                         紫外线指数: ${current.uv}
                         风速: ${current.wind_kph} km/h
-                        请从上衣、下装、鞋子、配饰（如雨具、太阳镜）等方面给出建议，语气要友好亲切。
+                        请从上衣、下装、鞋子、配饰（如雨具、太阳镜）等方面给出建议，简洁明了，少使用标点符号。
                     """.trimIndent()
 
-                    val request = ChatRequest(
-                        model = "glm-4.5-flash",
-                        messages = listOf(
-                            ChatMessage(role = "system", content = "你是一个专业的穿衣建议助手。"),
-                            ChatMessage(role = "user", content = prompt)
-                        ),
-                        temperature = 0.7
-                    )
-
-                    val response = WeatherClient.aiApi.getChatCompletion(
-                        bearerToken = "Bearer ${BuildConfig.ZHIPU_API_KEY}",
-                        request = request
-                    )
-                    advice = response.choices.firstOrNull()?.message?.content ?: "抱歉，暂时无法生成建议。"
+                    // 调用测试通过的函数
+                    val result = repository.generateAdvice(prompt)
+                    advice = result ?: "抱歉，暂时无法生成建议。"
                 } catch (e: Exception) {
-                    advice = "请求超时或失败，请重试。"
-                    e.printStackTrace()
+                    advice = "生成建议失败，请检查网络。"
+                    Log.e("AI", "Generation failed", e)
                 } finally {
                     isGenerating = false
                 }
@@ -399,6 +404,16 @@ fun DetailCard(modifier: Modifier, label: String, value: String, icon: ImageVect
 }
 
 @SuppressLint("MissingPermission")
-private fun getCurrentLocation(client: com.google.android.gms.location.FusedLocationProviderClient, onLocationFound: (Double, Double) -> Unit) {
-    client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null).addOnSuccessListener { it?.let { onLocationFound(it.latitude, it.longitude) } }
+private fun getCurrentLocation(client: com.google.android.gms.location.FusedLocationProviderClient, onLocationFound: (Double?, Double?) -> Unit) {
+    client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                onLocationFound(location.latitude, location.longitude)
+            } else {
+                client.lastLocation.addOnSuccessListener { lastLoc ->
+                    onLocationFound(lastLoc?.latitude, lastLoc?.longitude)
+                }.addOnFailureListener { onLocationFound(null, null) }
+            }
+        }
+        .addOnFailureListener { onLocationFound(null, null) }
 }
