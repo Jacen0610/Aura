@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,8 +25,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -187,7 +190,36 @@ fun WeatherHomeScreen(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        // --- 新增：Logo 和 标题区域 ---
+        if (!isSearchActive) {
+            Spacer(modifier = Modifier.height(32.dp))
+            Image(
+                // 注意：请确保drawable中有ic_app_logo图片，或者暂时改为Icons.Default.Cloud进行测试
+                painter = painterResource(id = R.drawable.ic_app_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Aura",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                ),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "你的 AI 天气助手",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
             DockedSearchBar(
                 modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
