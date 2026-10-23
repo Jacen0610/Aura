@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
+        android:name=".AuraApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="false"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Aura">
+        android:theme="@style/Theme.Aura"
+        android:usesCleartextTraffic="true">
+        <!-- enableOnBackInvokedCallback=false：关闭 targetSdk 36 默认开启的预测性返回
+             （边框手势时当前页向中心缩小的系统动画），使手势返回与应用内返回按钮行为一致。
+             若将来想接入官方预测性返回动画，删除此行即可。 -->
+        <!-- usesCleartextTraffic：Android 的 network security config 不支持按 IP 白名单放行明文，
+             后端代理暂为 http://101.34.159.58:8080（App 侧无私钥，明文风险可接受）。
+             更换域名 + HTTPS 后应删除此属性。 -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

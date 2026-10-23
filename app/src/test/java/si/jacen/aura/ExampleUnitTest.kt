@@ -1,4 +1,4 @@
-package com.jacen.aura
+package si.jacen.aura
 
 import org.junit.Test
 

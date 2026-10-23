@@ -1,4 +1,4 @@
-package com.jacen.aura.ui.theme
+package si.jacen.aura.ui.theme
 
 import android.app.Activity
 import android.os.Build

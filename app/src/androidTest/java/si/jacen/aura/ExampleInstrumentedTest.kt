@@ -1,4 +1,4 @@
-package com.jacen.aura
+package si.jacen.aura
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.jacen.aura", appContext.packageName)
+        assertEquals("si.jacen.aura", appContext.packageName)
     }
 }
