@@ -15,6 +15,8 @@ val localProperties = Properties().apply {
 
 // 代理服务器地址：从 local.properties 注入（aura.apiBaseUrl），缺省用服务器 IP 直连
 val auraApiBaseUrl: String = localProperties.getProperty("aura.apiBaseUrl") ?: "http://101.34.159.58:8080"
+// 高德定位 Key：从 local.properties 注入（amap.key），绑定包名与签名 SHA1
+val amapKey: String = localProperties.getProperty("amap.key") ?: ""
 
 android {
     namespace = "si.jacen.aura"
@@ -29,6 +31,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "AURA_API_BASE_URL", "\"$auraApiBaseUrl\"")
+        manifestPlaceholders["AMAP_KEY"] = amapKey
     }
 
     buildTypes {
@@ -73,7 +76,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.play.services.location)
+    implementation(libs.amap.location)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

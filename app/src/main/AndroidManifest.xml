@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Aura"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="${AMAP_KEY}" />
         <!-- enableOnBackInvokedCallback=false：关闭 targetSdk 36 默认开启的预测性返回
              （边框手势时当前页向中心缩小的系统动画），使手势返回与应用内返回按钮行为一致。
              若将来想接入官方预测性返回动画，删除此行即可。 -->

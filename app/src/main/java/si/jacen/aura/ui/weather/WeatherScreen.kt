@@ -128,6 +128,12 @@ fun WeatherScreen(
 
                 when {
                     state.initialLoading -> LoadingView(Modifier.fillMaxWidth(), "获取天气中…")
+                    // 无城市且尚未落定（定位中/权限流转中）显示加载态，不闪错误页
+                    state.city == null && !state.needsSetup ->
+                        LoadingView(
+                            Modifier.fillMaxWidth(),
+                            if (state.locating) "正在定位…" else "准备中…",
+                        )
                     state.needsSetup -> Column(
                         Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
