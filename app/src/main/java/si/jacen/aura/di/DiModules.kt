@@ -46,7 +46,8 @@ object NetworkModule {
     @Singleton
     fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
+        // AI 问答的 LLM 生成可达 1~2 分钟（免费档高峰），普通天气接口毫秒级响应不受影响
+        .readTimeout(120, TimeUnit.SECONDS)
         .build()
 
     @Provides
