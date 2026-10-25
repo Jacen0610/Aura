@@ -32,7 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import si.jacen.aura.ui.air.AirScreen
-import si.jacen.aura.ui.ai.AiPlaceholderScreen
+import si.jacen.aura.ui.calendar.CalendarInsightScreen
 import si.jacen.aura.ui.search.SearchScreen
 import si.jacen.aura.ui.settings.SettingsScreen
 import si.jacen.aura.ui.weather.WeatherScreen
@@ -122,7 +122,7 @@ fun AuraApp() {
                 AirScreen()
             }
             composable(Routes.AI) {
-                AiPlaceholderScreen()
+                CalendarInsightScreen()
             }
             composable(
                 Routes.SEARCH,

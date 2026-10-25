@@ -78,6 +78,7 @@ class WeatherViewModelTest {
         override val lastCity: Flow<GeoCity?> = cityFlow
         override val cachedWeather = MutableStateFlow(initialWeather)
         override val cachedAir = MutableStateFlow<AirQuality?>(null)
+        override val calendarEnabled = MutableStateFlow(false)
         var savedCity: GeoCity? = null
         var savedUnit: TempUnit? = null
 
@@ -89,6 +90,10 @@ class WeatherViewModelTest {
         override suspend fun setLastCity(city: GeoCity?) {
             savedCity = city
             cityFlow.value = city
+        }
+
+        override suspend fun setCalendarEnabled(enabled: Boolean) {
+            calendarEnabled.value = enabled
         }
     }
 

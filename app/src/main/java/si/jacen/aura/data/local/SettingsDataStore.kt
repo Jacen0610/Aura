@@ -29,6 +29,7 @@ private object Keys {
     val LAST_CITY = stringPreferencesKey("last_city")
     val WEATHER_SNAPSHOT = stringPreferencesKey("weather_snapshot")
     val AIR_SNAPSHOT = stringPreferencesKey("air_snapshot")
+    val CALENDAR_ENABLED = stringPreferencesKey("calendar_enabled")
 }
 
 @Singleton
@@ -65,6 +66,12 @@ class SettingsDataStore @Inject constructor(
 
     override suspend fun setUnit(unit: TempUnit) {
         context.dataStore.edit { it[Keys.UNIT] = unit.name }
+    }
+
+    override val calendarEnabled: Flow<Boolean> = context.dataStore.data.map { it[Keys.CALENDAR_ENABLED] == "1" }
+
+    override suspend fun setCalendarEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.CALENDAR_ENABLED] = if (enabled) "1" else "0" }
     }
 
     override suspend fun setLastCity(city: GeoCity?) {

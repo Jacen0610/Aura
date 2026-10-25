@@ -120,3 +120,29 @@ data class AirQuality(
 }
 
 enum class TempUnit { CELSIUS, FAHRENHEIT }
+
+// ---------- 日历感知 ----------
+
+data class CalendarEvent(
+    val id: Long,
+    val title: String,
+    val startMillis: Long,
+    val endMillis: Long,
+    val allDay: Boolean,
+    val location: String?,
+) {
+    val spanHours: Double get() = (endMillis - startMillis) / 3_600_000.0
+}
+
+data class CalendarFinding(
+    val emoji: String,
+    val text: String,
+)
+
+data class CalendarInsight(
+    val event: CalendarEvent,
+    /** 事件所在城市的天气（事件地点反查失败时为家城市天气） */
+    val cityWeather: WeatherBundle?,
+    val cityName: String?,
+    val findings: List<CalendarFinding>,
+)

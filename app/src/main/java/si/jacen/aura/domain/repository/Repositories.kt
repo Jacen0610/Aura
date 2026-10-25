@@ -2,6 +2,7 @@ package si.jacen.aura.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import si.jacen.aura.domain.model.AirQuality
+import si.jacen.aura.domain.model.CalendarEvent
 import si.jacen.aura.domain.model.Coordinate
 import si.jacen.aura.domain.model.GeoCity
 import si.jacen.aura.domain.model.TempUnit
@@ -27,9 +28,17 @@ interface GeoRepository {
 interface SettingsRepository {
     val unit: Flow<TempUnit>
     val lastCity: Flow<GeoCity?>
+    val calendarEnabled: Flow<Boolean>
     val cachedWeather: Flow<WeatherBundle?>
     val cachedAir: Flow<AirQuality?>
 
     suspend fun setUnit(unit: TempUnit)
     suspend fun setLastCity(city: GeoCity?)
+    suspend fun setCalendarEnabled(enabled: Boolean)
+}
+
+/** 日历感知：读取系统日历中枢（Calendar Provider），与具体日历 App 无关。 */
+interface CalendarEventReader {
+    /** 未来 [withinHours] 小时内的日程（过滤已拒绝/已取消/全天跨天） */
+    suspend fun upcomingEvents(withinHours: Int): List<CalendarEvent>
 }
