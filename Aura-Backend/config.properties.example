@@ -1,0 +1,9 @@
+# 复制本文件为 config.properties 并填入真实值（config.properties 已被 gitignore）
+server.port=8080
+qw.apiHost=你的和风专属APIHost
+qw.developerId=你的开发者ID
+qw.projectId=你的项目ID
+qw.credentialId=你的凭据ID
+qw.privateKeyPath=secrets/qw_private.pem
+guard.ratePerMinute=30
+guard.dailyUpstreamLimit=1500

@@ -1,0 +1,15 @@
+# 构建产物
+build/
+.gradle/
+.kotlin/
+
+# 敏感配置与凭据（永不入库）
+config.properties
+secrets/
+*.pem
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml

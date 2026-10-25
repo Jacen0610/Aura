@@ -1,0 +1,18 @@
+[Unit]
+Description=Aura QWeather Proxy (Ktor)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/aura-backend
+ExecStart=/opt/aura-backend/bin/AuraBackend
+Restart=always
+RestartSec=3
+# 内存与日志
+MemoryMax=384M
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

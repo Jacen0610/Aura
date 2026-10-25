@@ -17,5 +17,8 @@ app/google-services.json
 # 和风凭据：私钥与本地配置，严禁入库
 *.pem
 server/config.env
-# 后端独立工程（自带独立 git 管理）
-/Aura-Backend/
+# 后端敏感配置（双保险，Aura-Backend/.gitignore 亦覆盖）
+Aura-Backend/config.properties
+Aura-Backend/secrets/
+Aura-Backend/build/
+Aura-Backend/.gradle/
