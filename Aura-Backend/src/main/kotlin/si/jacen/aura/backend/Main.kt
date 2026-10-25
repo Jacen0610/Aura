@@ -58,7 +58,7 @@ fun main() {
     // LLM 生成可能超过 CIO 默认 15s 请求超时，专用客户端放宽到 60s
     val llmClient = HttpClient(CIO) {
         install(io.ktor.client.plugins.HttpTimeout) {
-            requestTimeoutMillis = 60_000
+            requestTimeoutMillis = 45_000
             connectTimeoutMillis = 15_000
         }
     }
@@ -68,7 +68,7 @@ fun main() {
         cache = cache,
         guard = guard,
         apiHost = config.apiHost,
-        llm = LlmClient(llmClient, config.glmApiKey, config.glmBaseUrl, config.glmModel),
+        llm = LlmClient(llmClient, config.glmApiKey, config.glmBaseUrl, config.glmModel, config.glmThinking),
     )
 
     logger.info(

@@ -16,6 +16,8 @@ data class Config(
     val glmApiKey: String = "",
     val glmBaseUrl: String = "https://open.bigmodel.cn",
     val glmModel: String = "glm-4.5-flash",
+    /** disabled=发 thinking:disabled（4.x 系列）；none=省略参数（5.x 强制思考系列） */
+    val glmThinking: String = "disabled",
     val llmDailyLimit: Long = 100,
 ) {
     companion object {
@@ -47,6 +49,7 @@ data class Config(
                 glmApiKey = pick("GLM_API_KEY", "glm.apiKey"),
                 glmBaseUrl = pick("GLM_BASE_URL", "glm.baseUrl", "https://open.bigmodel.cn"),
                 glmModel = pick("GLM_MODEL", "glm.model", "glm-4.5-flash"),
+                glmThinking = pick("GLM_THINKING", "glm.thinking", "disabled"),
                 llmDailyLimit = pick("AURA_LLM_DAILY_LIMIT", "guard.llmDailyLimit", "100").toLong(),
             )
             cfg.validate()

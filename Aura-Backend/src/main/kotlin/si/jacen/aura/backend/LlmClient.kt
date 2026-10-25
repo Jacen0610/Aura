@@ -18,9 +18,13 @@ class LlmClient(
     private val apiKey: String,
     private val baseUrl: String,
     private val model: String,
+    private val thinkingMode: String = "disabled",
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
+
+    /** 4.x：显式关闭思考；5.x：省略参数（强制思考，显式配置会报 1210） */
+    private val thinkingParam: Thinking? = if (thinkingMode == "none") null else Thinking("disabled")
 
     @Serializable
     private data class Message(val role: String, val content: String)
@@ -33,9 +37,8 @@ class LlmClient(
         val model: String,
         val messages: List<Message>,
         val temperature: Double = 0.4,
-        val max_tokens: Int = 400,
-        // 4.5/4.7 系列为推理模型，简答场景关闭思考模式，避免 token 全耗在 reasoning 上
-        val thinking: Thinking? = Thinking("disabled"),
+        val max_tokens: Int = 800,
+        val thinking: Thinking? = null,
     )
 
     @Serializable
@@ -47,7 +50,7 @@ class LlmClient(
     /** 生成回答。带重试（免费档高峰限流常见），最终失败抛异常由调用方降级。 */
     suspend fun complete(systemPrompt: String, userPrompt: String): String {
         var lastError: Exception? = null
-        repeat(3) { attempt ->
+        repeat(2) { attempt ->
             try {
                 return completeOnce(systemPrompt, userPrompt)
             } catch (e: Exception) {
@@ -71,6 +74,7 @@ class LlmClient(
                             Message("system", systemPrompt),
                             Message("user", userPrompt),
                         ),
+                        thinking = thinkingParam,
                     ),
                 ),
             )
