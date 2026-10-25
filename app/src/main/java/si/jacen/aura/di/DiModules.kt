@@ -17,9 +17,11 @@ import si.jacen.aura.data.calendar.CalendarReaderImpl
 import si.jacen.aura.data.local.SettingsDataStore
 import si.jacen.aura.data.location.LocationClient
 import si.jacen.aura.data.network.AuraApi
+import si.jacen.aura.data.repository.AiRepositoryImpl
 import si.jacen.aura.data.repository.AirRepositoryImpl
 import si.jacen.aura.data.repository.GeoRepositoryImpl
 import si.jacen.aura.data.repository.WeatherRepositoryImpl
+import si.jacen.aura.domain.repository.AiRepository
 import si.jacen.aura.domain.repository.AirRepository
 import si.jacen.aura.domain.repository.CalendarEventReader
 import si.jacen.aura.domain.repository.GeoRepository
@@ -81,4 +83,7 @@ abstract class DataModule {
 
     @Binds
     abstract fun bindCalendarEventReader(impl: CalendarReaderImpl): CalendarEventReader
+
+    @Binds
+    abstract fun bindAiRepository(impl: AiRepositoryImpl): AiRepository
 }

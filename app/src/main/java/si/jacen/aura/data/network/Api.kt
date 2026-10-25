@@ -5,6 +5,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import si.jacen.aura.data.network.dto.AirCurrentDto
 import si.jacen.aura.data.network.dto.AirHourlyForecastDto
+import si.jacen.aura.data.network.dto.AskDto
 import si.jacen.aura.data.network.dto.GeoLookupDto
 import si.jacen.aura.data.network.dto.WeatherDailyDto
 import si.jacen.aura.data.network.dto.WeatherHourlyDto
@@ -24,6 +25,13 @@ interface AuraApi {
 
     @GET("/v7/weather/7d")
     suspend fun weather7d(@Query("location") location: String): WeatherDailyDto
+
+    /** 天气问答（自建 AI 服务） */
+    @GET("/ai/ask")
+    suspend fun ask(
+        @Query("location") location: String,
+        @Query("question") question: String,
+    ): AskDto
 
     @GET("/geo/v2/city/lookup")
     suspend fun cityLookup(

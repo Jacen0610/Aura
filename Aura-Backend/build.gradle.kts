@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.10"
+    kotlin("plugin.serialization") version "2.2.10"
     application
 }
 
@@ -11,6 +12,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cio:3.6.0")
     implementation("io.ktor:ktor-client-core:3.6.0")
     implementation("io.ktor:ktor-client-cio:3.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation("org.slf4j:slf4j-simple:2.0.17")
 
     testImplementation(kotlin("test"))

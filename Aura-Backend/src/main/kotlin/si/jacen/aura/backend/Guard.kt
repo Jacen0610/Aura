@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong
 class Guard(
     private val perIpPerMinute: Int,
     private val dailyUpstreamLimit: Long,
+    private val llmDailyLimit: Long = 100,
     private val clock: Clock = Clock.systemDefaultZone(),
 ) {
 
@@ -24,6 +25,7 @@ class Guard(
     private val ipWindows = ConcurrentHashMap<String, Window>()
     private var currentDay: LocalDate? = null
     private val upstreamToday = AtomicLong()
+    private val llmToday = AtomicLong()
 
     /** 该 IP 本分钟内是否还允许请求。 */
     @Synchronized
@@ -49,11 +51,16 @@ class Guard(
                 if (currentDay != today) {
                     currentDay = today
                     upstreamToday.set(0)
+                    llmToday.set(0)
                 }
             }
         }
         return upstreamToday.incrementAndGet() <= dailyUpstreamLimit
     }
 
+    /** LLM 调用独立日额度（与和风出网分开计数）。 */
+    fun tryConsumeLlm(): Boolean = llmToday.incrementAndGet() <= llmDailyLimit
+
     fun upstreamCountToday(): Long = upstreamToday.get()
+    fun llmCountToday(): Long = llmToday.get()
 }

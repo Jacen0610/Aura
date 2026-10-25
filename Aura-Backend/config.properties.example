@@ -7,3 +7,6 @@ qw.credentialId=你的凭据ID
 qw.privateKeyPath=secrets/qw_private.pem
 guard.ratePerMinute=30
 guard.dailyUpstreamLimit=1500
+glm.apiKey=你的GLM密钥
+glm.model=glm-4.5-flash
+guard.llmDailyLimit=100

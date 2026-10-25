@@ -42,3 +42,8 @@ interface CalendarEventReader {
     /** 未来 [withinHours] 小时内的日程（过滤已拒绝/已取消/全天跨天） */
     suspend fun upcomingEvents(withinHours: Int): List<CalendarEvent>
 }
+
+/** 天气问答。 */
+interface AiRepository {
+    suspend fun ask(coordinate: Coordinate, question: String): String
+}

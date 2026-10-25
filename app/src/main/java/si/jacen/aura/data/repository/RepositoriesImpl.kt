@@ -13,6 +13,7 @@ import si.jacen.aura.domain.model.AirQuality
 import si.jacen.aura.domain.model.Coordinate
 import si.jacen.aura.domain.model.GeoCity
 import si.jacen.aura.domain.model.WeatherBundle
+import si.jacen.aura.domain.repository.AiRepository
 import si.jacen.aura.domain.repository.AirRepository
 import si.jacen.aura.domain.repository.GeoRepository
 import si.jacen.aura.domain.repository.WeatherRepository
@@ -70,4 +71,13 @@ class GeoRepositoryImpl @Inject constructor(
 
     override suspend fun reverseGeocode(coordinate: Coordinate): GeoCity? =
         search(coordinate.weatherQuery).firstOrNull()
+}
+
+
+@Singleton
+class AiRepositoryImpl @Inject constructor(
+    private val api: AuraApi,
+) : AiRepository {
+    override suspend fun ask(coordinate: si.jacen.aura.domain.model.Coordinate, question: String): String =
+        api.ask(coordinate.weatherQuery, question.take(100)).answer
 }

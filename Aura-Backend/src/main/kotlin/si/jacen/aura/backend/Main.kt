@@ -53,8 +53,23 @@ fun main() {
         credentialId = config.credentialId,
     )
     val cache = TtlCache(ttlSeconds = CACHE_TTL_SECONDS)
-    val guard = Guard(config.ratePerMinute, config.dailyUpstreamLimit)
+    val guard = Guard(config.ratePerMinute, config.dailyUpstreamLimit, config.llmDailyLimit)
     val client = HttpClient(CIO)
+    // LLM 生成可能超过 CIO 默认 15s 请求超时，专用客户端放宽到 60s
+    val llmClient = HttpClient(CIO) {
+        install(io.ktor.client.plugins.HttpTimeout) {
+            requestTimeoutMillis = 60_000
+            connectTimeoutMillis = 15_000
+        }
+    }
+    val askService = AskService(
+        client = client,
+        jwt = jwt,
+        cache = cache,
+        guard = guard,
+        apiHost = config.apiHost,
+        llm = LlmClient(llmClient, config.glmApiKey, config.glmBaseUrl, config.glmModel),
+    )
 
     logger.info(
         "Aura backend 启动: port={}, apiHost={}, cacheTTL={}s, 限流={}/min/IP, 日出网上限={}",
@@ -65,6 +80,35 @@ fun main() {
         routing {
             get("/healthz") {
                 call.respondText("ok")
+            }
+
+            // 天气问答（必须在通配路由之前注册）
+            get("/ai/ask") {
+                if (!guard.tryAcquire(call.request.origin.remoteHost)) {
+                    call.respondText(
+                        errorBody(429, "Too Many Requests", "请求过于频繁，请稍后再试"),
+                        ContentType.Application.Json,
+                        HttpStatusCode.TooManyRequests,
+                    )
+                    return@get
+                }
+                val q = call.request.queryParameters
+                val location = q["location"]
+                val question = q["question"]?.trim()
+                when {
+                    location.isNullOrBlank() || question.isNullOrBlank() || question.length > 100 ->
+                        call.respondText(
+                            errorBody(400, "Bad Request", "缺少 location/question 或问题过长"),
+                            ContentType.Application.Json,
+                            HttpStatusCode.BadRequest,
+                        )
+                    else -> when (val result = askService.ask(location, question)) {
+                        is AskService.Result.Ok ->
+                            call.respondText(result.body, ContentType.Application.Json, HttpStatusCode.OK)
+                        is AskService.Result.Error ->
+                            call.respondText(result.body, ContentType.Application.Json, HttpStatusCode.fromValue(result.status))
+                    }
+                }
             }
 
             get("/{path...}") {

@@ -32,6 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import si.jacen.aura.ui.air.AirScreen
+import si.jacen.aura.ui.ask.AskScreen
 import si.jacen.aura.ui.calendar.CalendarInsightScreen
 import si.jacen.aura.ui.search.SearchScreen
 import si.jacen.aura.ui.settings.SettingsScreen
@@ -58,6 +59,7 @@ object Routes {
     const val AI = "ai"
     const val SEARCH = "search"
     const val SETTINGS = "settings"
+    const val CALENDAR = "calendar"
 }
 
 @Composable
@@ -122,6 +124,13 @@ fun AuraApp() {
                 AirScreen()
             }
             composable(Routes.AI) {
+                AskScreen(onOpenCalendar = { navController.navigate(Routes.CALENDAR) })
+            }
+            composable(
+                Routes.CALENDAR,
+                enterTransition = { slideInHorizontally(tween(220)) { it / 2 } + fadeIn(tween(220)) },
+                popExitTransition = { slideOutHorizontally(tween(200)) { it / 2 } + fadeOut(tween(120)) },
+            ) {
                 CalendarInsightScreen()
             }
             composable(

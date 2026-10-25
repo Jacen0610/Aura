@@ -13,6 +13,10 @@ data class Config(
     val privateKeyPath: Path,
     val ratePerMinute: Int,
     val dailyUpstreamLimit: Long,
+    val glmApiKey: String = "",
+    val glmBaseUrl: String = "https://open.bigmodel.cn",
+    val glmModel: String = "glm-4.5-flash",
+    val llmDailyLimit: Long = 100,
 ) {
     companion object {
         /**
@@ -40,6 +44,10 @@ data class Config(
                 privateKeyPath = Path.of(pick("QW_PRIVATE_KEY_PATH", "qw.privateKeyPath", "secrets/qw_private.pem")),
                 ratePerMinute = pick("AURA_RATE_PER_MINUTE", "guard.ratePerMinute", "30").toInt(),
                 dailyUpstreamLimit = pick("AURA_DAILY_UPSTREAM_LIMIT", "guard.dailyUpstreamLimit", "1500").toLong(),
+                glmApiKey = pick("GLM_API_KEY", "glm.apiKey"),
+                glmBaseUrl = pick("GLM_BASE_URL", "glm.baseUrl", "https://open.bigmodel.cn"),
+                glmModel = pick("GLM_MODEL", "glm.model", "glm-4.5-flash"),
+                llmDailyLimit = pick("AURA_LLM_DAILY_LIMIT", "guard.llmDailyLimit", "100").toLong(),
             )
             cfg.validate()
             return cfg
