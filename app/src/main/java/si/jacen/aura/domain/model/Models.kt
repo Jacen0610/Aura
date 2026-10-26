@@ -175,4 +175,5 @@ data class MinutelyPoint(
 data class MinutelyPrecip(
     val summary: String,
     val points: List<MinutelyPoint>,
+    val updatedAt: String? = null,
 )

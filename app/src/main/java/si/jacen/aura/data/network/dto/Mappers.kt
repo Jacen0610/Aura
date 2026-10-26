@@ -156,6 +156,7 @@ fun MinutelyDto.toDomain(): MinutelyPrecip? {
     val s = summary ?: return null
     return MinutelyPrecip(
         summary = s,
+        updatedAt = updateTime,
         points = minutely.mapNotNull { m ->
             val time = m.fxTime ?: return@mapNotNull null
             MinutelyPoint(

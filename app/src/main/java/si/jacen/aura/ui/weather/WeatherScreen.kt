@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import si.jacen.aura.ui.components.OfflineBanner
 import si.jacen.aura.ui.components.SetupCard
 import si.jacen.aura.ui.weather.components.DailyList
 import si.jacen.aura.ui.weather.components.HourlyStrip
+import si.jacen.aura.ui.weather.components.MinutelyDetailSheet
 import si.jacen.aura.ui.weather.components.MinutelyRainCard
 import si.jacen.aura.ui.weather.components.WarningBanner
 import si.jacen.aura.ui.weather.components.WarningDetailSheet
@@ -65,6 +67,8 @@ fun WeatherScreen(
 
     // 首次打开且无历史城市：按需求直接请求定位权限
     var permissionRequested by rememberSaveable { mutableStateOf(false) }
+    var showWarningDetail by remember { mutableStateOf(false) }
+    var showMinutelyDetail by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
@@ -168,6 +172,9 @@ fun WeatherScreen(
                     else -> {
                         val weather = state.weather
                         if (weather != null) {
+                            state.warning?.let {
+                                WarningBanner(warning = it, onClick = { showWarningDetail = true })
+                            }
                             if (state.isOfflineData) OfflineBanner(Modifier.fillMaxWidth())
                             state.error?.let {
                                 Text(
@@ -177,7 +184,9 @@ fun WeatherScreen(
                                 )
                             }
                             NowCard(current = weather.current, unit = state.unit)
-                            state.minutely?.let { MinutelyRainCard(minutely = it) }
+                            state.minutely?.let {
+                                MinutelyRainCard(minutely = it, onClick = { showMinutelyDetail = true })
+                            }
                             SectionLabel("24 小时预报")
                             HourlyStrip(hourly = weather.hourly, unit = state.unit)
                             SectionLabel("7 天预报")
@@ -189,6 +198,14 @@ fun WeatherScreen(
                 Spacer(Modifier.height(16.dp))
             }
         }
+    }
+
+    if (showWarningDetail && state.warning != null) {
+        WarningDetailSheet(warning = state.warning!!, onDismiss = { showWarningDetail = false })
+    }
+
+    if (showMinutelyDetail && state.minutely != null) {
+        MinutelyDetailSheet(minutely = state.minutely!!, onDismiss = { showMinutelyDetail = false })
     }
 }
 
