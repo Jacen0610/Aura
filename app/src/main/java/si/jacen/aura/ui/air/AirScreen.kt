@@ -91,7 +91,15 @@ fun AirScreen(viewModel: AirViewModel = hiltViewModel()) {
                         val air = state.air
                         if (air != null) {
                             if (state.isOfflineData) OfflineBanner(Modifier.fillMaxWidth())
-                            air.primaryIndex?.let { AqiCard(it) }
+                            air.primaryIndex?.let { primary ->
+                                AqiCard(
+                                    index = primary,
+                                    onOpenPrimaryPollutant = {
+                                        air.pollutants.firstOrNull { p -> p.name == primary.primaryPollutantName }
+                                            ?.let { selectedPollutant = it }
+                                    },
+                                )
+                            }
                             air.pollutants.takeIf { it.isNotEmpty() }?.let {
                                 SectionLabel("污染物浓度")
                                 PollutantGrid(it, onClick = { selectedPollutant = it })
@@ -207,13 +215,13 @@ private fun PollutantDetailSheet(pollutant: AirPollutant, onDismiss: () -> Unit)
 }
 
 @Composable
-private fun AqiCard(index: AirIndex) {
+private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
     val aqiColor = Color(index.red / 255f, index.green / 255f, index.blue / 255f)
     val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
     // 容器底色 = surface 与 AQI 色轻混（16%），柔和而非整块纯色
     val container = lerp(MaterialTheme.colorScheme.surface, aqiColor, 0.16f)
     Card(
-        Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth().clickable(onClick = onOpenPrimaryPollutant),
         colors = CardDefaults.cardColors(containerColor = container),
     ) {
         Column(
@@ -243,6 +251,12 @@ private fun AqiCard(index: AirIndex) {
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "点按污染物卡片查看国标分级 ›",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             )
         }
     }
@@ -299,6 +313,11 @@ private fun PollutantGrid(pollutants: List<AirPollutant>, onClick: (AirPollutant
                                 color = MaterialTheme.colorScheme.outline,
                             )
                         }
+                        Text(
+                            "查看分级 ›",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        )
                     }
                 }
             }
