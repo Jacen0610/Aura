@@ -18,8 +18,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -224,18 +227,19 @@ private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
         Modifier.fillMaxWidth().clickable(onClick = onOpenPrimaryPollutant),
         colors = CardDefaults.cardColors(containerColor = container),
     ) {
-        Box(Modifier.fillMaxWidth()) {
-            Text(
-                "›",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 14.dp),
+        androidx.compose.foundation.layout.Box {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 10.dp, end = 12.dp),
             )
-        }
-        Column(
-            Modifier.fillMaxWidth().padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+            Column(
+                Modifier.fillMaxWidth().padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
             Text(
                 index.display,
                 style = MaterialTheme.typography.displayLarge,
@@ -260,6 +264,7 @@ private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            }
         }
     }
 }
@@ -287,18 +292,20 @@ private fun PollutantGrid(pollutants: List<AirPollutant>, onClick: (AirPollutant
                         CardDefaults.cardColors()
                     },
                 ) {
-                    Box(Modifier.fillMaxWidth()) {
-                        Text(
-                            "›",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                            modifier = Modifier.align(Alignment.TopEnd),
-                        )
-                    }
-                    Column(
-                        Modifier.fillMaxWidth().padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    androidx.compose.foundation.layout.Box(
+                        Modifier.fillMaxWidth(),
                     ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd),
+                        )
+                        Column(
+                            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 14.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
                         Text(
                             p.name,
                             style = MaterialTheme.typography.labelMedium,
@@ -322,6 +329,7 @@ private fun PollutantGrid(pollutants: List<AirPollutant>, onClick: (AirPollutant
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.outline,
                             )
+                        }
                         }
                     }
                 }
