@@ -146,3 +146,33 @@ data class CalendarInsight(
     val cityName: String?,
     val findings: List<CalendarFinding>,
 )
+
+// ---------- 气象预警与分钟级降水 ----------
+
+data class WeatherWarning(
+    val typeName: String,
+    val level: String,          // 色码中文：蓝/黄/橙/红…
+    val headline: String,
+    val description: String,
+    val instruction: String?,
+    val effectiveTime: String?,
+    val expireTime: String?,
+    val issuedTime: String?,
+    val sender: String?,
+    /** 是否为取消/更新类消息（MVP 展示 active/update，忽略 cancel） */
+    val isCancel: Boolean,
+    val red: Int,
+    val green: Int,
+    val blue: Int,
+)
+
+data class MinutelyPoint(
+    val fxTime: String,
+    val precip: Double,
+    val prob: Int?,
+)
+
+data class MinutelyPrecip(
+    val summary: String,
+    val points: List<MinutelyPoint>,
+)

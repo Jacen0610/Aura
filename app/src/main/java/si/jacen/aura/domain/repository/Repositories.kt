@@ -5,12 +5,20 @@ import si.jacen.aura.domain.model.AirQuality
 import si.jacen.aura.domain.model.CalendarEvent
 import si.jacen.aura.domain.model.Coordinate
 import si.jacen.aura.domain.model.GeoCity
+import si.jacen.aura.domain.model.MinutelyPrecip
 import si.jacen.aura.domain.model.TempUnit
+import si.jacen.aura.domain.model.WeatherWarning
 import si.jacen.aura.domain.model.WeatherBundle
 
 interface WeatherRepository {
     /** 拉取 now + 24h + 7d 并合并；成功时同时持久化快照（离线兜底）。失败抛出异常。 */
     suspend fun fetch(coordinate: Coordinate): WeatherBundle
+
+    /** 官方气象预警（可能为空列表）。 */
+    suspend fun fetchWarnings(coordinate: Coordinate): List<WeatherWarning>
+
+    /** 未来两小时分钟级降水。 */
+    suspend fun fetchMinutely(coordinate: Coordinate): MinutelyPrecip?
 }
 
 interface AirRepository {

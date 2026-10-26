@@ -58,6 +58,8 @@ class WeatherViewModelTest {
         var behavior: suspend (Coordinate) -> WeatherBundle = { throw IOException() },
     ) : WeatherRepository {
         override suspend fun fetch(coordinate: Coordinate): WeatherBundle = behavior(coordinate)
+        override suspend fun fetchWarnings(coordinate: Coordinate): List<si.jacen.aura.domain.model.WeatherWarning> = emptyList()
+        override suspend fun fetchMinutely(coordinate: Coordinate): si.jacen.aura.domain.model.MinutelyPrecip? = null
     }
 
     private class FakeGeoRepo : GeoRepository {
@@ -119,6 +121,7 @@ class WeatherViewModelTest {
         geoRepo: GeoRepository = FakeGeoRepo(),
     ) = WeatherViewModel(
         getWeather = GetWeatherUseCase(weatherRepo),
+        weatherRepository = weatherRepo,
         locateAndResolveCity = LocateAndResolveCityUseCase(locationProvider, geoRepo),
         settings = settings,
     )

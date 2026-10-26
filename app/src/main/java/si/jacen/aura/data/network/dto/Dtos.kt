@@ -158,3 +158,52 @@ data class AirSnapshotDto(
     val current: AirCurrentDto = AirCurrentDto(),
     val hourly: AirHourlyForecastDto = AirHourlyForecastDto(),
 )
+
+// ---------- 预警与分钟级降水 ----------
+
+/** 新版实时预警 weatheralert/v1（v7/warning/now 已于 2026-10-01 停服） */
+@Serializable
+data class WeatherAlertDto(
+    val alerts: List<AlertDto> = emptyList(),
+)
+
+@Serializable
+data class AlertDto(
+    val id: String? = null,
+    val senderName: String? = null,
+    val issuedTime: String? = null,
+    val messageType: AlertMessageTypeDto? = null,
+    val eventType: AlertEventTypeDto? = null,
+    val severity: String? = null,
+    val color: AlertColorDto? = null,
+    val effectiveTime: String? = null,
+    val onsetTime: String? = null,
+    val expireTime: String? = null,
+    val headline: String? = null,
+    val description: String? = null,
+    val instruction: String? = null,
+)
+
+@Serializable
+data class AlertMessageTypeDto(val code: String? = null, val supersedes: List<String> = emptyList())
+
+@Serializable
+data class AlertEventTypeDto(val name: String? = null, val code: String? = null)
+
+@Serializable
+data class AlertColorDto(val code: String? = null, val red: Int = 0, val green: Int = 0, val blue: Int = 0)
+
+@Serializable
+data class MinutelyDto(
+    val code: String? = null,
+    val updateTime: String? = null,
+    val summary: String? = null,
+    val minutely: List<MinutelyItemDto> = emptyList(),
+)
+
+@Serializable
+data class MinutelyItemDto(
+    val fxTime: String? = null,
+    val precip: String? = null,
+    val prob: String? = null,
+)

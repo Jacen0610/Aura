@@ -8,7 +8,10 @@ import si.jacen.aura.domain.model.CurrentWeather
 import si.jacen.aura.domain.model.DailyItem
 import si.jacen.aura.domain.model.GeoCity
 import si.jacen.aura.domain.model.HourlyItem
+import si.jacen.aura.domain.model.MinutelyPoint
+import si.jacen.aura.domain.model.MinutelyPrecip
 import si.jacen.aura.domain.model.WeatherBundle
+import si.jacen.aura.domain.model.WeatherWarning
 
 private fun String?.toIntOr() = this?.trim()?.toIntOrNull()
 private fun String?.toDoubleOr() = this?.trim()?.toDoubleOrNull()
@@ -122,3 +125,44 @@ fun AirSnapshotDto.toAirQuality(): AirQuality = AirQuality(
     pollutants = current.pollutants.mapNotNull { it.toDomain() },
     hourly = hourly.hourly.mapNotNull { it.toDomain() },
 )
+
+private val ALERT_LEVEL_CN = mapOf(
+    "blue" to "蓝色", "yellow" to "黄色", "amber" to "橙色", "orange" to "橙色",
+    "red" to "红色", "purple" to "紫色", "black" to "黑色", "white" to "白色",
+    "gray" to "灰色", "green" to "绿色",
+)
+
+fun AlertDto.toDomain(): WeatherWarning? {
+    val name = eventType?.name ?: return null
+    val isCancel = messageType?.code == "cancel"
+    return WeatherWarning(
+        typeName = name,
+        level = color?.code?.let { ALERT_LEVEL_CN[it] } ?: severity ?: "",
+        headline = headline ?: "$name 预警",
+        description = description ?: "",
+        instruction = instruction,
+        effectiveTime = effectiveTime,
+        expireTime = expireTime,
+        issuedTime = issuedTime,
+        sender = senderName,
+        isCancel = isCancel,
+        red = color?.red ?: 0,
+        green = color?.green ?: 0,
+        blue = color?.blue ?: 0,
+    )
+}
+
+fun MinutelyDto.toDomain(): MinutelyPrecip? {
+    val s = summary ?: return null
+    return MinutelyPrecip(
+        summary = s,
+        points = minutely.mapNotNull { m ->
+            val time = m.fxTime ?: return@mapNotNull null
+            MinutelyPoint(
+                fxTime = time,
+                precip = m.precip?.toDoubleOrNull() ?: 0.0,
+                prob = m.prob?.toIntOrNull(),
+            )
+        },
+    )
+}

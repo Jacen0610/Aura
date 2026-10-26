@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val getWeather: GetWeatherUseCase,
+    private val weatherRepository: si.jacen.aura.domain.repository.WeatherRepository,
     private val locateAndResolveCity: LocateAndResolveCityUseCase,
     private val settings: SettingsRepository,
 ) : ViewModel() {
@@ -30,6 +33,8 @@ class WeatherViewModel @Inject constructor(
     data class UiState(
         val city: GeoCity? = null,
         val weather: WeatherBundle? = null,
+        val warning: si.jacen.aura.domain.model.WeatherWarning? = null,
+        val minutely: si.jacen.aura.domain.model.MinutelyPrecip? = null,
         val unit: TempUnit = TempUnit.CELSIUS,
         val initialLoading: Boolean = true,
         val refreshing: Boolean = false,
@@ -130,6 +135,23 @@ class WeatherViewModel @Inject constructor(
                         isOfflineData = false,
                         error = null,
                     )
+                }
+                // 预警与分钟降水为增强信息：并行拉取、单独容错，失败不影响天气主体
+                coroutineScope {
+                    val warningDeferred = async {
+                        runCatching { weatherRepository.fetchWarnings(city.coordinate) }.getOrDefault(emptyList())
+                    }
+                    val minutelyDeferred = async {
+                        runCatching { weatherRepository.fetchMinutely(city.coordinate) }.getOrNull()
+                    }
+                    val warnings = warningDeferred.await()
+                    val minutely = minutelyDeferred.await()
+                    _uiState.update {
+                        it.copy(
+                            warning = warnings.maxByOrNull { w -> w.level.length },
+                            minutely = minutely,
+                        )
+                    }
                 }
             } catch (e: CancellationException) {
                 throw e

@@ -47,6 +47,9 @@ import si.jacen.aura.ui.components.OfflineBanner
 import si.jacen.aura.ui.components.SetupCard
 import si.jacen.aura.ui.weather.components.DailyList
 import si.jacen.aura.ui.weather.components.HourlyStrip
+import si.jacen.aura.ui.weather.components.MinutelyRainCard
+import si.jacen.aura.ui.weather.components.WarningBanner
+import si.jacen.aura.ui.weather.components.WarningDetailSheet
 import si.jacen.aura.ui.weather.components.NowCard
 import si.jacen.aura.ui.weather.components.SectionLabel
 
@@ -174,6 +177,7 @@ fun WeatherScreen(
                                 )
                             }
                             NowCard(current = weather.current, unit = state.unit)
+                            state.minutely?.let { MinutelyRainCard(minutely = it) }
                             SectionLabel("24 小时预报")
                             HourlyStrip(hourly = weather.hourly, unit = state.unit)
                             SectionLabel("7 天预报")

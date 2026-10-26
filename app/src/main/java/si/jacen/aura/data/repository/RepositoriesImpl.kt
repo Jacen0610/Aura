@@ -12,6 +12,8 @@ import si.jacen.aura.data.network.dto.toHourlyItems
 import si.jacen.aura.domain.model.AirQuality
 import si.jacen.aura.domain.model.Coordinate
 import si.jacen.aura.domain.model.GeoCity
+import si.jacen.aura.domain.model.MinutelyPrecip
+import si.jacen.aura.domain.model.WeatherWarning
 import si.jacen.aura.domain.model.WeatherBundle
 import si.jacen.aura.domain.repository.AiRepository
 import si.jacen.aura.domain.repository.AirRepository
@@ -42,6 +44,14 @@ class WeatherRepositoryImpl @Inject constructor(
             daily = daily.toDailyItems(),
         )
     }
+
+    override suspend fun fetchWarnings(coordinate: Coordinate): List<WeatherWarning> =
+        api.weatherAlert(coordinate.airPath).alerts
+            .mapNotNull { it.toDomain() }
+            .filter { !it.isCancel }
+
+    override suspend fun fetchMinutely(coordinate: Coordinate): MinutelyPrecip? =
+        runCatching { api.minutely5m(coordinate.weatherQuery).toDomain() }.getOrNull()
 }
 
 @Singleton
