@@ -224,6 +224,14 @@ private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
         Modifier.fillMaxWidth().clickable(onClick = onOpenPrimaryPollutant),
         colors = CardDefaults.cardColors(containerColor = container),
     ) {
+        Box(Modifier.fillMaxWidth()) {
+            Text(
+                "›",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 14.dp),
+            )
+        }
         Column(
             Modifier.fillMaxWidth().padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -252,12 +260,6 @@ private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "点按污染物卡片查看国标分级 ›",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            )
         }
     }
 }
@@ -285,6 +287,14 @@ private fun PollutantGrid(pollutants: List<AirPollutant>, onClick: (AirPollutant
                         CardDefaults.cardColors()
                     },
                 ) {
+                    Box(Modifier.fillMaxWidth()) {
+                        Text(
+                            "›",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                            modifier = Modifier.align(Alignment.TopEnd),
+                        )
+                    }
                     Column(
                         Modifier.fillMaxWidth().padding(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -313,11 +323,6 @@ private fun PollutantGrid(pollutants: List<AirPollutant>, onClick: (AirPollutant
                                 color = MaterialTheme.colorScheme.outline,
                             )
                         }
-                        Text(
-                            "查看分级 ›",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        )
                     }
                 }
             }
