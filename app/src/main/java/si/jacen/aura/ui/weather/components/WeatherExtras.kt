@@ -121,10 +121,10 @@ fun MinutelyRainCard(minutely: MinutelyPrecip, modifier: Modifier = Modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("🌧️ 未来两小时降水", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.weight(1f))
-                val maxProb = minutely.points.mapNotNull { it.prob }.maxOrNull()
-                maxProb?.let {
+                val rainyMinutes = minutely.points.count { it.precip > 0.0 }
+                if (rainyMinutes > 0) {
                     Text(
-                        "概率峰值 $it%",
+                        "预计降雨约 ${rainyMinutes * 5} 分钟",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -147,22 +147,22 @@ fun MinutelyRainCard(minutely: MinutelyPrecip, modifier: Modifier = Modifier) {
     }
 }
 
-/** 24 根柱：无雨为浅灰矮柱，有雨按强度着主色，高度∝降水量。 */
+/** 24 根柱：整条时间轴用主色浅 tint 保证可见，有雨时段为实心主色、高度∝降水量。 */
 @Composable
 private fun PrecipTimeline(values: List<Double>, modifier: Modifier = Modifier) {
     val barColor = MaterialTheme.colorScheme.primary
-    val idleColor = MaterialTheme.colorScheme.surfaceVariant
-    Canvas(modifier = modifier.fillMaxWidth().height(56.dp)) {
+    val idleColor = barColor.copy(alpha = 0.18f)
+    Canvas(modifier = modifier.fillMaxWidth().height(64.dp)) {
         if (values.isEmpty()) return@Canvas
         val n = values.size
         val gap = 3.dp.toPx()
         val barWidth = (size.width - gap * (n - 1)) / n
         values.forEachIndexed { i, v ->
             val h = if (v <= 0.0) {
-                size.height * 0.12f
+                size.height * 0.16f
             } else {
-                // 0~1.5mm 线性映射到 15%~100% 高度
-                (size.height * (0.15 + 0.85 * (v / 1.5).coerceAtMost(1.0))).toFloat()
+                // 0~1.5mm 线性映射到 20%~100% 高度
+                (size.height * (0.20 + 0.80 * (v / 1.5).coerceAtMost(1.0))).toFloat()
             }
             drawRoundRect(
                 color = if (v <= 0.0) idleColor else barColor,
