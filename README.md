@@ -1,8 +1,7 @@
 <div align="center">
   <img src="docs/logo.png" width="120" alt="Aura logo" />
   <h1>Aura</h1>
-  <p>面向国内网络环境的天气应用 + 自建后端服务</p>
-  <p><sub>定位（高德）· 数据（和风，自建代理）· AI（智谱 GLM）——全链路国内直连，不依赖任何被墙服务</sub></p>
+  <p>天气应用 + 自建后端服务（Kotlin · Compose · Ktor · GLM）</p>
 
   <img src="docs/screenshots/weather.jpg" width="200" alt="天气页" />
   <img src="docs/screenshots/air.jpg" width="200" alt="空气页" />
@@ -178,11 +177,17 @@ cd Aura-Backend
 ./deploy/deploy.sh <user@server-ip>   # 部署（需服务器 OpenJDK 21+）
 ```
 
+## 关于 APK 分发
+
+本项目不提供 APK 下载：后端使用的和风天气 API 与 GLM 服务在超出个人用量后会产生
+费用，公开分发意味着由项目作者承担所有使用者的调用成本。本项目定位为个人学习与
+自用——如果你想体验或基于它学习，欢迎邮件联系我：[jacenwang0610@gmail.com](mailto:jacenwang0610@gmail.com)。
+
 ## 分支说明
 
 | 分支 | 用途 |
 |---|---|
-| `main` | 正统版本：自建后端 + 高德定位 + GLM，面向国内网络环境 |
+| `main` | 正统版本：自建后端 + 高德定位 + GLM |
 | `legacy/firebase` | 早期基于 Firebase + Gemini 的方案存档。若将来面向海外市场（Google 服务可用环境），可作为定位/AI 侧的参考实现 |
 
 ## 已知边界与路线图
