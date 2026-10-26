@@ -1,7 +1,26 @@
-# Aura
+<div align="center">
+  <img src="docs/logo.png" width="120" alt="Aura logo" />
+  <h1>Aura</h1>
+  <p>面向国内网络环境的天气应用 + 自建后端服务</p>
+  <p><sub>定位（高德）· 数据（和风，自建代理）· AI（智谱 GLM）——全链路国内直连，不依赖任何被墙服务</sub></p>
 
-面向国内网络环境的天气应用 + 自建后端服务。App 不依赖任何被墙服务：定位使用高德
-SDK 与平台标准 API，天气数据经自建代理获取，AI 问答使用智谱 GLM——全链路国内直连。
+  <img src="docs/screenshots/weather.jpg" width="200" alt="天气页" />
+  <img src="docs/screenshots/air.jpg" width="200" alt="空气页" />
+  <img src="docs/screenshots/air-detail.jpg" width="200" alt="污染物分级详情" />
+  <img src="docs/screenshots/ai.jpg" width="200" alt="AI 问答页" />
+</div>
+
+## 应用截图
+
+| 天气页 | 空气页 |
+|---|---|
+| 三级定位自动选城，实时 + 24h + 7 天预报 | 多标准 AQI 与健康建议 |
+| ![天气页](docs/screenshots/weather.jpg) | ![空气页](docs/screenshots/air.jpg) |
+
+| 污染物分级详情 | AI 问答 |
+|---|---|
+| 点击卡片查看国标 HJ 633-2012 分级区间 | 自然语言提问，基于真实数据作答 |
+| ![污染物详情](docs/screenshots/air-detail.jpg) | ![AI 问答](docs/screenshots/ai.jpg) |
 
 ## 功能总览
 
