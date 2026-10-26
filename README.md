@@ -159,6 +159,13 @@ cd Aura-Backend
 ./deploy/deploy.sh <user@server-ip>   # 部署（需服务器 OpenJDK 21+）
 ```
 
+## 分支说明
+
+| 分支 | 用途 |
+|---|---|
+| `main` | 正统版本：自建后端 + 高德定位 + GLM，面向国内网络环境 |
+| `legacy/firebase` | 早期基于 Firebase + Gemini 的方案存档。若将来面向海外市场（Google 服务可用环境），可作为定位/AI 侧的参考实现 |
+
 ## 已知边界与路线图
 
 - 问答为非流式返回，等待时长等于生成时长（~10-30s）；下一步可做流式输出
