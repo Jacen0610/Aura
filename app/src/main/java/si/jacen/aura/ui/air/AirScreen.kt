@@ -60,6 +60,7 @@ import si.jacen.aura.util.WeatherVisuals
 fun AirScreen(viewModel: AirViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedPollutant by remember { mutableStateOf<AirPollutant?>(null) }
+    var showAqiDetail by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
         TopAppBar(
@@ -97,10 +98,7 @@ fun AirScreen(viewModel: AirViewModel = hiltViewModel()) {
                             air.primaryIndex?.let { primary ->
                                 AqiCard(
                                     index = primary,
-                                    onOpenPrimaryPollutant = {
-                                        air.pollutants.firstOrNull { p -> p.name == primary.primaryPollutantName }
-                                            ?.let { selectedPollutant = it }
-                                    },
+                                    onOpenDetail = { showAqiDetail = true },
                                 )
                             }
                             air.pollutants.takeIf { it.isNotEmpty() }?.let {
@@ -118,6 +116,16 @@ fun AirScreen(viewModel: AirViewModel = hiltViewModel()) {
                 Spacer(Modifier.height(16.dp))
             }
         }
+    }
+
+    val airData = state.air
+    val airIndex = airData?.primaryIndex
+    if (showAqiDetail && airData != null && airIndex != null) {
+        AqiDetailSheet(
+            index = airIndex,
+            pollutants = airData.pollutants,
+            onDismiss = { showAqiDetail = false },
+        )
     }
 
     selectedPollutant?.let { pollutant ->
@@ -218,13 +226,13 @@ private fun PollutantDetailSheet(pollutant: AirPollutant, onDismiss: () -> Unit)
 }
 
 @Composable
-private fun AqiCard(index: AirIndex, onOpenPrimaryPollutant: () -> Unit) {
+private fun AqiCard(index: AirIndex, onOpenDetail: () -> Unit) {
     val aqiColor = Color(index.red / 255f, index.green / 255f, index.blue / 255f)
     val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
     // 容器底色 = surface 与 AQI 色轻混（16%），柔和而非整块纯色
     val container = lerp(MaterialTheme.colorScheme.surface, aqiColor, 0.16f)
     Card(
-        Modifier.fillMaxWidth().clickable(onClick = onOpenPrimaryPollutant),
+        Modifier.fillMaxWidth().clickable(onClick = onOpenDetail),
         colors = CardDefaults.cardColors(containerColor = container),
     ) {
         androidx.compose.foundation.layout.Box {
@@ -415,6 +423,121 @@ private fun HealthAdviceCard(index: AirIndex?) {
                         body,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+/** AQI 官方分级档位（六档） */
+private data class AqiBand(val label: String, val colorHex: Long, val range: String, val lo: Int, val hi: Int)
+
+private val AQI_BANDS = listOf(
+    AqiBand("优", si.jacen.aura.util.AirStandards.bandColors[0], "0~50", 0, 50),
+    AqiBand("良", si.jacen.aura.util.AirStandards.bandColors[1], "51~100", 51, 100),
+    AqiBand("轻度污染", si.jacen.aura.util.AirStandards.bandColors[2], "101~150", 101, 150),
+    AqiBand("中度污染", si.jacen.aura.util.AirStandards.bandColors[3], "151~200", 151, 200),
+    AqiBand("重度污染", si.jacen.aura.util.AirStandards.bandColors[4], "201~300", 201, 300),
+    AqiBand("严重污染", si.jacen.aura.util.AirStandards.bandColors[5], ">300", 301, 500),
+)
+
+/** AQI 详情层：官方六档标尺（高亮当前档）+ 各污染物分指数（实时近似）。 */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AqiDetailSheet(index: AirIndex, pollutants: List<AirPollutant>, onDismiss: () -> Unit) {
+    val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            val official = Color(index.red / 255f, index.green / 255f, index.blue / 255f)
+            Text(
+                index.display,
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = official.asTextColor(lightTheme),
+            )
+            Text(
+                index.category,
+                style = MaterialTheme.typography.titleMedium,
+                color = official.onBandColor(),
+                modifier = Modifier
+                    .background(official, RoundedCornerShape(50))
+                    .padding(horizontal = 18.dp, vertical = 4.dp),
+            )
+
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                AQI_BANDS.forEach { band ->
+                    val isCurrent = index.aqi in band.lo..band.hi
+                    val bandColor = Color(band.colorHex)
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(
+                                if (isCurrent) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            Modifier
+                                .size(10.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(bandColor)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                        Text(band.label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        Text(
+                            band.range,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        if (isCurrent) {
+                            Text(
+                                "当前",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (pollutants.isNotEmpty()) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "各污染物分指数 IAQI（按实时浓度近似）",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    pollutants.forEach { p ->
+                        val level = remember(p) { AirStandards.evaluate(p) }
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
+                            Text(p.name, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                            Text(
+                                level?.iaqi?.toString() ?: "—",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                if (p.name == index.primaryPollutantName) "首要" else "",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                    Text(
+                        "综合 AQI = 各分指数最大值。官方 AQI 基于 24 小时平均浓度，分指数为实时浓度近似对照，两者可能略有差异。",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline,
                     )
                 }
             }
